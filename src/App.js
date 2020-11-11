@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classes from './App.css';
 import Person from './Person/Person';
+import ErrorBoundary from './ErrorBoundary/ErrorBoundary';
 
 class App extends Component {
   state = {
@@ -67,15 +68,16 @@ nameChangedHandler = (event,id) => {
         Also common practice to make lists is to map arrays into arrays of jsx objects
         like the following*/>
           {this.state.persons.map((person, index) => {
-            return <Person 
-            click={() => this.deletePersonHandler(index)}
-            name={person.name}
-            age={person.age}
+            
             //Setting key to unique id allows react to compare current dom with previous 
             //dom to see which elements changed so that it only needs to re-render 
             //the elements that changed vs entire list 
-            key={person.id} 
-            changed={(event)=>this.nameChangedHandler(event,person.id)}/>
+            return <ErrorBoundary key={person.id}><Person 
+            click={() => this.deletePersonHandler(index)}
+            name={person.name}
+            age={person.age}
+
+            changed={(event)=>this.nameChangedHandler(event,person.id)}/> </ErrorBoundary>
           })}
         </div> 
       );
