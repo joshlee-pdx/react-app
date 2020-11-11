@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
+
 import classes from './App.css';
-import Person from './Person/Person';
-import ErrorBoundary from './ErrorBoundary/ErrorBoundary';
+import Persons from '../components/Persons/Persons';
+import Cockpit from '../components/Cockpit/Cockpit';
 
 class App extends Component {
+  // Constructor to initialize/setup state
+  // Not safe to cause side-effects here
+  // Side-effects include sending http requests or running analytics
+  constructor(props){
+    super(props);
+    console.log('[App.js] Constructor');
+  }
+
   state = {
       persons: [
         { id: 'ehtpoj1', name: 'Josh', age:30},
@@ -14,7 +23,22 @@ class App extends Component {
       showPersons: false
   }
 
-nameChangedHandler = (event,id) => {
+  // This lifecycle component is ran before rendering
+  // Purpose is for syncing state to props they change (niche circumstances)
+  // But safe to cause side-effects here
+  static getDerivedStateFromProps(props,state){
+    console.log('[App.js] getDerivedStateFromProps', props);
+    return state;
+  }
+
+  // Last component lifecycle to run
+  // Safe to cause side-effects in
+  // Don't update state here
+  componentDidMount(){
+    console.log('[App.js] componenetDidMount');
+  }
+
+  nameChangedHandler = (event,id) => {
     // DONT DO THIS -> this.state.persons[0].name='Joshua';
 
     // Find index of person using their id
@@ -58,50 +82,27 @@ nameChangedHandler = (event,id) => {
   }
 
   render() {
+    console.log('[App.js] render');
+
     // Allows for a more efficient view toggle 
     let persons = null;
-    let btnClass = '';
 
     if(this.state.showPersons) {
-      persons = (
-        <div /* Wrapping data in div allows to show/hide more easily 
-        Also common practice to make lists is to map arrays into arrays of jsx objects
-        like the following*/>
-          {this.state.persons.map((person, index) => {
-            
-            //Setting key to unique id allows react to compare current dom with previous 
-            //dom to see which elements changed so that it only needs to re-render 
-            //the elements that changed vs entire list 
-            return <ErrorBoundary key={person.id}><Person 
-            click={() => this.deletePersonHandler(index)}
-            name={person.name}
-            age={person.age}
-
-            changed={(event)=>this.nameChangedHandler(event,person.id)}/> </ErrorBoundary>
-          })}
-        </div> 
-      );
-
-      btnClass = classes.Red;
+      persons = <Persons 
+            persons={this.state.persons} 
+            clicked={this.deletePersonHandler}
+            changed={this.nameChangedHandler}/>;
     }
 
-    const assignedClasses = [];
-    if(this.state.persons.length <= 2){
-      assignedClasses.push(classes.red);
-    }
-    if(this.state.persons.length <=1){
-      assignedClasses.push(classes.bold);
-    }
 
     return (
 
         <div className={classes.App}>
-          <h1>Hi, I'm a React App</h1>
-          <p className={assignedClasses.join(' ')}>This is really working!</p>
-          {/* IF switchNameHandler was a function and not a const, we could use {() => this.switchNameHandler('Joshua')} NOTE: it can be inefficient */}
-          <button
-            className={btnClass}
-            onClick={this.togglePersonsHandler}>Toggle Persons</button>
+          <Cockpit 
+            title={this.props.appTitle}
+            showPersons={this.state.showPersons} 
+            persons={this.state.persons}
+            clicked={this.togglePersonsHandler}/>
           {persons}
         </div>
 
