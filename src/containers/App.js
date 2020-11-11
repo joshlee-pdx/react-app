@@ -5,7 +5,7 @@ import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
 
 class App extends Component {
-  // Constructor to initialize/setup state
+  // First creation lifecycle component to run to initialize/setup state
   // Not safe to cause side-effects here
   // Side-effects include sending http requests or running analytics
   constructor(props){
@@ -23,7 +23,7 @@ class App extends Component {
       showPersons: false
   }
 
-  // This lifecycle component is ran before rendering
+  // This creation lifecycle component is ran before rendering
   // Purpose is for syncing state to props they change (niche circumstances)
   // But safe to cause side-effects here
   static getDerivedStateFromProps(props,state){
@@ -31,7 +31,7 @@ class App extends Component {
     return state;
   }
 
-  // Last component lifecycle to run
+  // Last component creation lifecycle to run
   // Safe to cause side-effects in
   // Don't update state here
   componentDidMount(){
@@ -81,6 +81,7 @@ class App extends Component {
     this.setState({showPersons: !doesShow});
   }
 
+  // Lifecycle creation component that returns JSX
   render() {
     console.log('[App.js] render');
 
