@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import './App.css';
+import Radium, { StyleRoot} from 'radium';
 import Person from './Person/Person';
 
 class App extends Component {
@@ -59,11 +59,17 @@ nameChangedHandler = (event,id) => {
 
   render() {
     const style ={
-      backgroundColor: 'white',
+      backgroundColor: 'green',
+      color: 'white',
       font: 'inherit',
       border: '1px solid blue',
       padding: '8px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      // Need to wrap psuedoselectors in quotes because they start with colon
+      ':hover': {
+        backgroundColor: 'lightgreen',
+        color: 'black'
+      }
     };
 
     // Allows for a more efficient view toggle 
@@ -87,17 +93,33 @@ nameChangedHandler = (event,id) => {
           })}
         </div> 
       );
+
+      style.backgroundColor = 'red';
+      style[':hover'] = {
+        backgroundColor: 'salmon',
+        color: 'black'
+      };
+    }
+
+    const classes = [];
+    if(this.state.persons.length <= 2){
+      classes.push('red');
+    }
+    if(this.state.persons.length <=1){
+      classes.push('bold');
     }
 
     return (
-      <div className="App">
-        <h1>Hi, I'm a React App</h1>
-        <p>This is really working!</p>
-        {/* IF switchNameHandler was a function and not a const, we could use {() => this.switchNameHandler('Joshua')} NOTE: it can be inefficient */}
-        <button style={style}
-          onClick={this.togglePersonsHandler}>Switch Name</button>
-        {persons}
-      </div>
+      <StyleRoot>
+        <div className="App">
+          <h1>Hi, I'm a React App</h1>
+          <p className={classes.join(' ')}>This is really working!</p>
+          {/* IF switchNameHandler was a function and not a const, we could use {() => this.switchNameHandler('Joshua')} NOTE: it can be inefficient */}
+          <button style={style}
+            onClick={this.togglePersonsHandler}>Toggle Persons</button>
+          {persons}
+        </div>
+      </StyleRoot>
     );
     // Insides get translated to this
     // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));
@@ -105,7 +127,7 @@ nameChangedHandler = (event,id) => {
   };
 
 
-export default App;
+export default Radium(App);
 
 
 

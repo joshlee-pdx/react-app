@@ -2,11 +2,18 @@
 //because it has no logic and instead is just presenting something
 
 import React from 'react';
+import Radium from 'radium';
 import './Person.css';
 
 const person = (props) => {
+    const style = {
+        '@media (min-width: 500px)':{
+            width: '450px'
+        }
+    }
+
     return (
-        <div className="Person">
+        <div className="Person" style={style}>
             {/* Dynamically state name and age from passed attributes */}
             <p onClick={props.click}>I'm {props.name} and I am {props.age} years old!</p>
             {/* children is a reserved word that refers to any elements between opening and closing tag of component */}
@@ -17,4 +24,4 @@ const person = (props) => {
     )
 };
 
-export default person;
+export default Radium(person);
