@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
+import withClass from '../hoc/withClass';
+import Aux from '../hoc/Auxilliary';
+import AuthContext from '../context/auth-context';
 
 class App extends Component {
   // First creation lifecycle component to run to initialize/setup state
@@ -20,7 +23,10 @@ class App extends Component {
         { id: 'hgio3d',name: 'Jessica', age:26}
       ],
       otherState: 'some other value',
-      showPersons: false
+      showPersons: false,
+      showCockpit: true,
+      changeCounter: 0,
+      authenticated: false
   }
 
   // This creation lifecycle component is ran before rendering
@@ -31,11 +37,22 @@ class App extends Component {
     return state;
   }
 
-  // Last component creation lifecycle to run
+  // Last component creation lifecycle to run (very useful component)
   // Safe to cause side-effects in
   // Don't update state here
   componentDidMount(){
-    console.log('[App.js] componenetDidMount');
+    console.log('[App.js] componentDidMount');
+  }
+
+  // Used for performance improvements (very useful update lifecycle component)
+  shouldComponentUpdate(nextProps,nextState){
+    console.log('[App.js] shouldComponentUpdate');
+    return true;
+  }
+
+  // Used for fetching data (very useful update lifecycle component)
+  componentDidUpdate(){
+    console.log('[App.js] componentDidUpdate');
   }
 
   nameChangedHandler = (event,id) => {
@@ -63,8 +80,19 @@ class App extends Component {
     persons[personIndex] = person;
   
     // Update state to new copy of array
-    this.setState({persons: persons})
-  }
+    this.setState((prevState, props) => {
+      // Return a new state that is based off of the old state
+      return {
+        persons: persons, 
+        // This is the correct way to make changes based on the previous state
+        // (by passing in the prevstate as arguments) because it is not guaranteed 
+        // that using "changeCounter: this.state.changeCounter + 1" will be using the 
+        // most current state since setState does not trigger an update of the state in a 
+        // re-render cycle, rerendering is something that basically  happens on a schedule.
+        changeCounter: prevState.changeCounter + 1
+        };
+      });
+  };
 
   // Delete a person from array of persons by getting their index and splicing
   deletePersonHandler = (personIndex) => {
@@ -72,14 +100,18 @@ class App extends Component {
     const persons = [...this.state.persons];
     persons.splice(personIndex,1);
     this.setState({persons:persons})
-  }
+  };
 
   // Allows the ability to toggle view of persons objects
   // Using arrow function makes sure this keyword always returns to this class
   togglePersonsHandler= () => {
     const doesShow = this.state.showPersons;
     this.setState({showPersons: !doesShow});
-  }
+  };
+
+  loginHandler = () => {
+    this.setState({authenticated: true});
+  };
 
   // Lifecycle creation component that returns JSX
   render() {
@@ -92,20 +124,28 @@ class App extends Component {
       persons = <Persons 
             persons={this.state.persons} 
             clicked={this.deletePersonHandler}
-            changed={this.nameChangedHandler}/>;
+            changed={this.nameChangedHandler}
+            isAuthenticated={this.state.authenticated}
+            />;
     }
 
 
     return (
 
-        <div className={classes.App}>
-          <Cockpit 
-            title={this.props.appTitle}
-            showPersons={this.state.showPersons} 
-            persons={this.state.persons}
-            clicked={this.togglePersonsHandler}/>
-          {persons}
-        </div>
+        <Aux>
+          <button onClick={()=>{this.setState({showCockpit: false});}}>Remove Cockpit</button>
+          <AuthContext.Provider value={{autheticated: this.state.authenticated, login: this.loginHandler}}>
+            {this.state.showCockpit ? (
+              <Cockpit 
+                title={this.props.appTitle}
+                showPersons={this.state.showPersons} 
+                personsLength={this.state.persons.length}
+                clicked={this.togglePersonsHandler}
+              />
+            ): null}
+            {persons}
+          </AuthContext.Provider>
+        </Aux>
 
     );
     // Insides get translated to this
@@ -114,7 +154,7 @@ class App extends Component {
   };
 
 
-export default App;
+export default withClass(App, classes.App);
 
 
 
